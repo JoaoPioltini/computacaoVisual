@@ -3,10 +3,516 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu GitHub Pages</title>
-</head>
+    <title>Blog de Computacao Visual</title>
+    <style>
+        :root {
+            --bg: #f7f4ef;
+            --panel: #ffffff;
+            --ink: #1f2933;
+            --muted: #68727f;
+            --line: #ded8cf;
+            --accent: #1b7f79;
+            --accent-dark: #135f5b;
+            --highlight: #f2c14e;
+            --soft-blue: #d9e8f5;
+            --soft-green: #dceee7;
+            --shadow: 0 18px 48px rgba(31, 41, 51, 0.12);
+        }
 
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(242, 193, 78, 0.22), transparent 34rem),
+                linear-gradient(135deg, #f7f4ef 0%, #ecf2f4 100%);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .page-shell {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid rgba(222, 216, 207, 0.85);
+            background: rgba(247, 244, 239, 0.92);
+            backdrop-filter: blur(14px);
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            min-height: 72px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            border: 2px solid var(--ink);
+            border-radius: 8px;
+            background: var(--highlight);
+            box-shadow: 5px 5px 0 var(--ink);
+            font-size: 1.1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .nav-links a {
+            min-height: 40px;
+            padding: 9px 14px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            color: var(--muted);
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .nav-links a:hover,
+        .nav-links a:focus {
+            border-color: var(--accent);
+            color: var(--accent-dark);
+            background: rgba(27, 127, 121, 0.08);
+            outline: none;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+            gap: 40px;
+            align-items: center;
+            padding: 72px 0 48px;
+        }
+
+        .eyebrow {
+            margin: 0 0 14px;
+            color: var(--accent-dark);
+            font-size: 0.86rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin: 0;
+            line-height: 1.12;
+            letter-spacing: 0;
+        }
+
+        h1 {
+            max-width: 760px;
+            font-size: clamp(2.4rem, 7vw, 5.35rem);
+        }
+
+        .hero p {
+            max-width: 650px;
+            margin: 22px 0 0;
+            color: var(--muted);
+            font-size: 1.12rem;
+        }
+
+        .hero-panel {
+            position: relative;
+            min-height: 360px;
+            border: 2px solid var(--ink);
+            border-radius: 8px;
+            overflow: hidden;
+            background:
+                linear-gradient(90deg, rgba(31, 41, 51, 0.09) 1px, transparent 1px),
+                linear-gradient(rgba(31, 41, 51, 0.09) 1px, transparent 1px),
+                linear-gradient(135deg, var(--soft-blue), var(--soft-green));
+            background-size: 34px 34px, 34px 34px, 100% 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .visual-board {
+            position: absolute;
+            inset: 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 12px;
+            transform: rotate(-2deg);
+        }
+
+        .pixel {
+            border: 2px solid rgba(31, 41, 51, 0.88);
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 6px 6px 0 rgba(31, 41, 51, 0.16);
+        }
+
+        .pixel:nth-child(1) {
+            background: var(--highlight);
+        }
+
+        .pixel:nth-child(3),
+        .pixel:nth-child(7) {
+            background: var(--accent);
+        }
+
+        .pixel:nth-child(5) {
+            display: grid;
+            place-items: center;
+            background: var(--ink);
+            color: #ffffff;
+            font-size: 2.4rem;
+            font-weight: 900;
+        }
+
+        .post-shortcuts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            padding: 18px 0 64px;
+        }
+
+        .shortcut-card {
+            min-height: 190px;
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.78);
+            box-shadow: 0 10px 30px rgba(31, 41, 51, 0.07);
+            transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+        }
+
+        .shortcut-card:hover,
+        .shortcut-card:focus {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 16px 36px rgba(31, 41, 51, 0.12);
+            outline: none;
+        }
+
+        .shortcut-number {
+            display: inline-grid;
+            width: 42px;
+            height: 42px;
+            margin-bottom: 22px;
+            place-items: center;
+            border-radius: 8px;
+            background: var(--ink);
+            color: #ffffff;
+            font-weight: 900;
+        }
+
+        .shortcut-card h2 {
+            font-size: 1.35rem;
+        }
+
+        .shortcut-card p {
+            margin: 10px 0 0;
+            color: var(--muted);
+        }
+
+        .content-band {
+            padding: 56px 0;
+            border-top: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.38);
+        }
+
+        .content-band:nth-of-type(odd) {
+            background: rgba(217, 232, 245, 0.42);
+        }
+
+        .post {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 42px;
+            align-items: start;
+            scroll-margin-top: 96px;
+        }
+
+        .post-meta {
+            position: sticky;
+            top: 104px;
+            padding: 20px;
+            border-left: 5px solid var(--accent);
+            background: rgba(255, 255, 255, 0.72);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .post-meta span {
+            display: block;
+            color: var(--accent-dark);
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .post-meta strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 1.25rem;
+        }
+
+        .post-body {
+            padding: 34px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: 0 12px 32px rgba(31, 41, 51, 0.08);
+        }
+
+        .post-body h2 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+        }
+
+        .prompt-list {
+            display: grid;
+            gap: 18px;
+            margin-top: 28px;
+        }
+
+        .prompt {
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fbfaf7;
+        }
+
+        .prompt h3 {
+            font-size: 1.15rem;
+        }
+
+        .answer-text {
+            margin: 16px 0 0;
+            color: var(--muted);
+            font-size: 1.05rem;
+        }
+
+        .empty-post-anchor {
+            display: block;
+            min-height: 220px;
+            scroll-margin-top: 96px;
+        }
+
+        .site-footer {
+            padding: 34px 0;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 820px) {
+            .topbar,
+            .hero,
+            .post {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                padding: 16px 0;
+            }
+
+            .nav-links {
+                justify-content: flex-start;
+            }
+
+            .hero {
+                padding-top: 42px;
+            }
+
+            .hero-panel {
+                min-height: 280px;
+            }
+
+            .post-shortcuts {
+                grid-template-columns: 1fr;
+                padding-bottom: 42px;
+            }
+
+            .post-meta {
+                position: static;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .page-shell {
+                width: min(100% - 22px, 1120px);
+            }
+
+            h1 {
+                font-size: 2.35rem;
+            }
+
+            .brand {
+                align-items: flex-start;
+            }
+
+            .brand-mark {
+                flex: 0 0 auto;
+            }
+
+            .nav-links a {
+                padding: 8px 11px;
+                font-size: 0.88rem;
+            }
+
+            .hero-panel {
+                min-height: 235px;
+            }
+
+            .visual-board {
+                inset: 16px;
+                gap: 8px;
+            }
+
+            .post-body {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
 <body>
-    <h1>Funcionou pages </h1>
+    <header class="site-header">
+        <div class="page-shell topbar">
+            <a class="brand" href="#top" aria-label="Voltar ao inicio">
+                <span class="brand-mark">CV</span>
+                <span>Blog de Computacao Visual</span>
+            </a>
+
+            <nav class="nav-links" aria-label="Navegacao dos posts">
+                <a href="#post-1">Post 1</a>
+                <a href="#post-2">Post 2</a>
+                <a href="#post-3">Post 3</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="top">
+        <section class="page-shell hero" aria-labelledby="hero-title">
+            <div>
+                <p class="eyebrow">Mackenzie | Computacao Visual</p>
+                <h1 id="hero-title">Registros e reflexoes da disciplina</h1>
+                <p>
+                    Um espaco para organizar os posts das aulas, registrar aprendizados e acompanhar
+                    a evolucao dos temas estudados em Computacao Visual.
+                </p>
+            </div>
+
+            <div class="hero-panel" aria-hidden="true">
+                <div class="visual-board">
+                    <span class="pixel"></span>
+                    <span class="pixel"></span>
+                    <span class="pixel"></span>
+                    <span class="pixel"></span>
+                    <span class="pixel">+</span>
+                    <span class="pixel"></span>
+                    <span class="pixel"></span>
+                    <span class="pixel"></span>
+                    <span class="pixel"></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="page-shell post-shortcuts" aria-label="Atalhos para posts">
+            <a class="shortcut-card" href="#post-1">
+                <span class="shortcut-number">01</span>
+                <h2>Primeiras impressoes</h2>
+                <p>O que eu achava que veria na disciplina e o que entendi que estudaremos.</p>
+
+            </a>
+
+            <a class="shortcut-card" href="#post-2">
+                <span class="shortcut-number">02</span>
+                <h2>Post 2</h2>
+                <p>Espaco reservado para a proxima atividade.</p>
+            </a>
+
+            <a class="shortcut-card" href="#post-3">
+                <span class="shortcut-number">03</span>
+                <h2>Post 3</h2>
+                <p>Espaco reservado para uma futura publicacao.</p>
+            </a>
+        </section>
+
+        <section class="content-band">
+            <article class="page-shell post" id="post-1">
+                <aside class="post-meta" aria-label="Informacoes do post 1">
+                    <span>Post 1</span>
+                    <strong>Primeiras impressoes</strong>
+                </aside>
+
+                <div class="post-body">
+                    <h2>Primeiras impressoes sobre a disciplina</h2>
+
+                    <div class="prompt-list">
+                        <section class="prompt">
+                            <h3>O que voce achava que veria na disciplina?</h3>
+                            <p class="answer-text">
+                                Minha primeira impressao sobre a disciplina era de que trabalhariamos
+                                principalmente com imagens. Imaginei que a materia abordaria temas
+                                relacionados ao processamento de imagens, como reconhecimento de padroes
+                                e objetos, possivelmente utilizando tecnicas de Inteligencia Artificial.
+                            </p>
+                        </section>
+
+                        <section class="prompt">
+                            <h3>O que voce entendeu que estudaremos?</h3>
+                            <p class="answer-text">
+                                Minha percepcao sobre a disciplina mudou ao compreender que a Computacao
+                                Visual e uma area mais ampla, que envolve Computacao Grafica, Processamento
+                                de Imagens e Visao Computacional. Ao longo da disciplina, veremos a
+                                intersecao entre esses temas e as diferentes maneiras pelas quais o
+                                computador pode representar, processar e compreender informacoes visuais.
+                            </p>
+                        </section>
+                    </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="content-band">
+            <article class="page-shell empty-post-anchor" id="post-2" aria-label="Post 2"></article>
+        </section>
+
+        <section class="content-band">
+            <article class="page-shell empty-post-anchor" id="post-3" aria-label="Post 3"></article>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="page-shell">
+            <span>Blog academico de Computacao Visual</span>
+        </div>
+    </footer>
 </body>
 </html>
