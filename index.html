@@ -318,6 +318,13 @@
             font-size: 1.05rem;
         }
 
+        .reference-link {
+            color: var(--accent-dark);
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
         .empty-post-anchor {
             display: block;
             min-height: 220px;
@@ -452,8 +459,8 @@
 
             <a class="shortcut-card" href="#post-2">
                 <span class="shortcut-number">02</span>
-                <h2>Post 2</h2>
-                <p>Espaço reservado para a próxima atividade.</p>
+                <h2>OpenGL</h2>
+                <p>Uma introdução breve ao papel do OpenGL na computação gráfica.</p>
             </a>
 
             <a class="shortcut-card" href="#post-3">
@@ -500,7 +507,46 @@
         </section>
 
         <section class="content-band">
-            <article class="page-shell empty-post-anchor" id="post-2" aria-label="Post 2"></article>
+            <article class="page-shell post" id="post-2">
+                <aside class="post-meta" aria-label="Informações do post 2">
+                    <span>Post 2</span>
+                    <strong>OpenGL</strong>
+                </aside>
+
+                <div class="post-body">
+                    <h2>O que é OpenGL?</h2>
+
+                    <div class="prompt-list">
+                        <section class="prompt">
+                            <h3>Explicação resumida</h3>
+                            <p class="answer-text">
+                                Depois de pesquisar um pouco mais sobre a matéria, me interessei pelo
+                                OpenGL e decidi iniciar uma pesquisa sobre ele. Durante essa busca,
+                                assisti ao vídeo citado como referência e consegui entender melhor sua
+                                relação com a Computação Visual. OpenGL, sigla para Open Graphics Library,
+                                é uma API gráfica usada para criar imagens 2D e 3D em tempo real. Ela
+                                permite que programas se comuniquem com a placa de vídeo para desenhar
+                                formas, aplicar cores, texturas, iluminação e transformações geométricas.
+                                Por isso, é muito utilizada em computação gráfica, jogos, simulações,
+                                visualizações científicas e aplicações que precisam renderizar cenas
+                                interativas.
+                            </p>
+                        </section>
+
+                        <section class="prompt">
+                            <h3>Referência</h3>
+                            <p class="answer-text">
+                                Vídeo no YouTube:
+                                <a class="reference-link" href="https://www.youtube.com/watch?v=G36-tR0EkS8" target="_blank" rel="noopener noreferrer">
+                                    https://www.youtube.com/watch?v=G36-tR0EkS8
+                                </a>.
+                                Link direto do post:
+                                <a class="reference-link" href="post-2/">abrir somente o Post 2</a>.
+                            </p>
+                        </section>
+                    </div>
+                </div>
+            </article>
         </section>
 
         <section class="content-band">
