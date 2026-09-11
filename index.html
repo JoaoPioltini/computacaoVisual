@@ -497,6 +497,36 @@
                 padding: 22px;
             }
         }
+
+        /* Elementos do Post 4: diagramas e comparação. */
+        #post-4 .post-body, .post-4-body {
+            min-width: 0;
+        }
+
+        #post-4 .comparison-scroll, .post-4-body .comparison-scroll {
+            overflow-x: auto;
+            margin-top: 18px;
+        }
+
+        #post-4 .comparison-table, .post-4-body .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        #post-4 th, #post-4 td, .post-4-body th, .post-4-body td {
+            padding: 12px;
+            border: 1px solid var(--line);
+            vertical-align: top;
+        }
+
+        #post-4 th, .post-4-body th {
+            background: var(--soft-blue);
+        }
+
+        #post-4 .reference-link, .post-4-body .reference-link {
+            overflow-wrap: anywhere;
+        }
     </style>
 </head>
 <body>
@@ -511,6 +541,7 @@
                 <a href="#post-1">Post 1</a>
                 <a href="#post-2">Post 2</a>
                 <a href="#post-3">Post 3</a>
+                <a href="#post-4">Post 4</a>
             </nav>
         </div>
     </header>
@@ -558,6 +589,12 @@
                 <span class="shortcut-number">03</span>
                 <h2>Do real ao pixel</h2>
                 <p>Como luz, sensor, amostragem e quantização formam uma imagem digital.</p>
+            </a>
+
+            <a class="shortcut-card" href="#post-4">
+                <span class="shortcut-number">04</span>
+                <h2>De onde vêm os novos pixels?</h2>
+                <p>Como a interpolação estima os pixels quando aumentamos uma imagem.</p>
             </a>
         </section>
 
@@ -810,6 +847,128 @@
                             </p>
                         </section>
                     </div>
+                </div>
+            </article>
+        </section>
+
+        <section class="content-band">
+            <article class="page-shell post" id="post-4">
+                <aside class="post-meta" aria-label="Informações do post 4">
+                    <span>Post 4</span>
+                    <strong>Interpolação de imagens</strong>
+                </aside>
+
+                <div class="post-body">
+<h2>Quando aumentamos uma imagem, de onde vêm os novos pixels?</h2>
+<p class="post-intro">No <a class="reference-link" href="post-3/">último post</a>, fui atrás de entender como uma cena do mundo real se transforma em uma matriz de pixels. Mas isso me deixou com outra dúvida: se esses pixels já estão definidos, o que acontece quando aumentamos uma imagem? Se uma imagem de 500 × 500 pixels passa para 1000 × 1000, de onde vêm todos os pixels que não existiam antes?</p>
+<p class="answer-text">Essa pergunta me fez olhar com mais atenção para algo bem comum: uma foto pequena que fica cheia de quadradinhos quando ampliada. Em outros casos, ela fica mais suave, mas meio borrada. Fui entender o que muda entre esses resultados, e a diferença está em como o computador escolhe os valores dos novos pixels.</p>
+
+<div class="prompt-list">
+<section class="prompt">
+<h3>De 9 pixels para 36</h3>
+<p class="answer-text">Uma imagem digital pode ser representada como uma matriz de pixels: uma organização em linhas e colunas, em que cada posição guarda valores que representam uma cor. Em uma imagem em tons de cinza de 8 bits, por exemplo, podemos usar um número entre 0, para preto, e 255, para branco. Nas imagens coloridas, é comum ter valores separados para vermelho, verde e azul.</p>
+<p class="answer-text">Agora imagine uma imagem bem pequena, de 3 × 3 pixels. São apenas 9 posições. Se dobrarmos sua largura e sua altura, ela passa a ter 6 × 6 pixels, ou seja, 36 posições. Dobrar as duas dimensões quadruplica a quantidade de pixels.</p>
+<p class="answer-text">O arquivo original não traz 36 amostras de cor para preencher essa nova matriz. O computador precisa determinar qual valor colocar em cada posição da imagem ampliada.</p>
+<p class="answer-text">É aí que entra a <strong>interpolação</strong>: uma forma de estimar valores em posições para as quais não temos uma amostra original. No redimensionamento, podemos imaginar a nova grade sobre a imagem antiga. Para cada posição de saída, o programa encontra o local correspondente na imagem original e usa uma regra para escolher seu valor.</p>
+
+</section>
+<section class="prompt">
+<h3>A solução mais direta: copiar o vizinho</h3>
+<p class="answer-text">O método do <strong>vizinho mais próximo</strong>, também chamado de <em>Nearest Neighbor</em>, faz uma escolha simples: usa o valor do pixel original mais próximo da posição correspondente.</p>
+<p class="answer-text">Para enxergar isso, vamos usar uma matriz ainda menor, de 2 × 2, com quatro intensidades de cinza. Ao dobrar suas dimensões com esse método, temos:</p>
+<pre class="matrix-sample"><code class="language-text">Original: 2 × 2              Ampliada: 4 × 4
+
+ 10    50                    10    10    50    50
+100   200                    10    10    50    50
+                            100   100   200   200
+                            100   100   200   200
+</code></pre>
+<p class="answer-text">Cada valor passa a ocupar um bloco de 2 × 2 pixels. Não surgem tons intermediários: o programa apenas copia os valores existentes para mais posições.</p>
+<p class="answer-text">Isso explica a aparência blocada. Vários pixels de saída repetem a mesma cor, e a passagem para a cor seguinte continua abrupta. Quando ampliamos bastante, esses grupos ficam visíveis como quadrados, e contornos diagonais parecem escadinhas.</p>
+<p class="answer-text">Como a escolha exige pouco cálculo, o método é simples e rápido. E os blocos nem sempre são um problema: em pixel art, uma ampliação por um fator inteiro pode preservar justamente os quadradinhos e a paleta que fazem parte do desenho.</p>
+
+</section>
+<section class="prompt">
+<h3>E se, em vez de copiar, a gente misturar?</h3>
+<p class="answer-text">Antes de pensar na imagem inteira, ajuda imaginar dois valores em uma linha: 100 e 200. Se queremos estimar o valor exatamente no meio, faz sentido dar a mesma importância aos dois. O resultado é 150.</p>
+<p class="answer-text">Se a posição estiver mais perto de 100, o resultado deve ficar mais perto de 100 também. A um quarto do caminho até 200, por exemplo, chegamos a 125. Essa é a ideia da interpolação linear.</p>
+<p class="answer-text">A conta pode ser escrita assim:</p>
+<pre class="matrix-sample"><code class="language-text">V = (1 − α)V₀ + αV₁
+</code></pre>
+<p class="answer-text">Aqui, <code>V₀</code> e <code>V₁</code> são os valores das duas pontas. O símbolo <code>α</code> indica quanto do caminho percorremos da primeira até a segunda: 0 é o início, 1 é o fim e 0,5 é o meio. Conforme avançamos, a primeira ponta perde influência e a segunda ganha.</p>
+<p class="answer-text">No meio do nosso exemplo, fica:</p>
+<pre class="matrix-sample"><code class="language-text">V = (1 − 0,5) × 100 + 0,5 × 200
+V = 150
+</code></pre>
+
+</section>
+<section class="prompt">
+<h3>Só que uma imagem tem duas direções</h3>
+<p class="answer-text">Uma linha tem apenas uma direção para percorrer. Uma imagem tem largura e altura. Quando a posição que queremos estimar fica entre linhas e colunas da grade original, precisamos considerar as duas direções.</p>
+<p class="answer-text">A <strong>interpolação bilinear</strong> faz isso usando os quatro pixels que cercam essa posição. Podemos imaginar uma interpolação linear na horizontal e, depois, outra na vertical.</p>
+<p class="answer-text">Neste exemplo, o ponto <code>P</code> está exatamente no centro dos quatro pixels:</p>
+<pre class="matrix-sample"><code class="language-text"> 10 ●───────────────────● 50
+    │                   │
+    │         P         │
+    │                   │
+100 ●───────────────────● 200
+</code></pre>
+<p class="answer-text">Primeiro, encontramos o valor no meio da linha de cima: entre 10 e 50, temos 30. Depois, fazemos o mesmo na linha de baixo: entre 100 e 200, temos 150. Por fim, estimamos o meio do caminho vertical entre esses dois resultados:</p>
+<pre class="matrix-sample"><code class="language-text">Linha de cima:   10 ────── 30 ────── 50
+                           │
+Centro:                    90
+                           │
+Linha de baixo: 100 ───── 150 ───── 200
+</code></pre>
+<p class="answer-text">O valor estimado para <code>P</code> é 90. Como ele está no centro, os quatro pixels têm o mesmo peso. Se deslocarmos o ponto para a esquerda, a coluna da esquerda ganha influência; se o movermos para cima, a linha superior ganha influência. É nesse sentido que os vizinhos mais próximos pesam mais: os pesos dependem da posição em cada direção.</p>
+<p class="answer-text">Em uma imagem colorida, essa combinação pode ser feita separadamente para cada canal de cor. Na prática, os valores calculados também precisam ser representados no formato usado pela imagem; se ele só aceita inteiros, pode ser necessário arredondar.</p>
+<p class="answer-text">Como a bilinear produz valores intermediários, as transições tendem a ficar mais suaves. Isso reduz o aspecto de blocos, mas também pode deixar bordas menos definidas. Suavizar não significa necessariamente deixar mais nítido.</p>
+
+</section>
+<section class="prompt">
+<h3>Dois jeitos de preencher a imagem</h3>
+<p class="answer-text">Depois de acompanhar os exemplos, a comparação fica mais concreta:</p>
+<div class="comparison-scroll"><table class="comparison-table">
+<thead>
+<tr>
+<th>Vizinho mais próximo</th>
+<th>Bilinear</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Copia o valor de um vizinho.</td>
+<td>Combina os valores de quatro vizinhos.</td>
+</tr>
+<tr>
+<td>É mais simples e, em geral, mais rápido.</td>
+<td>Exige mais cálculos por pixel.</td>
+</tr>
+<tr>
+<td>Usa valores já presentes na imagem original.</td>
+<td>Pode produzir valores intermediários.</td>
+</tr>
+<tr>
+<td>Pode deixar blocos e escadinhas visíveis.</td>
+<td>Tende a suavizar transições, podendo borrar bordas.</td>
+</tr>
+</tbody>
+</table></div>
+<p class="answer-text">Os dois métodos estão disponíveis em ferramentas de processamento de imagens. No OpenCV, por exemplo, aparecem como <code>INTER_NEAREST</code> e <code>INTER_LINEAR</code> — apesar do nome abreviado, o segundo corresponde à interpolação bilinear em imagens. A página de <a class="reference-link" href="https://opencv.org/resizing-and-rescaling-images-with-opencv/">redimensionamento do OpenCV</a> mostra como escolher entre eles.</p>
+
+</section>
+<section class="prompt">
+<h3>Mais pixels não garantem mais informação</h3>
+<p class="answer-text">O que mais me chamou a atenção é que aumentar a resolução, no sentido de aumentar a quantidade de pixels, não significa recuperar um detalhe que nunca foi capturado.</p>
+<p class="answer-text">Se uma foto pequena mostra uma placa cujas letras já não podem ser distinguidas, a interpolação pode suavizar a ampliação. Mas misturar ou repetir os pixels disponíveis não revela, por si só, o que estava escrito. Ter mais posições na matriz não equivale a ter novas observações da cena.</p>
+<p class="answer-text">Isso também ajuda a entender a diferença para a super-resolução baseada em IA. Enquanto os métodos tradicionais que vimos aplicam regras fixas aos pixels existentes, modelos de super-resolução podem usar padrões aprendidos durante o treinamento para estimar estruturas e texturas. O trabalho que apresentou o <a class="reference-link" href="https://openaccess.thecvf.com/content_cvpr_2017/html/Ledig_Photo-Realistic_Single_Image_CVPR_2017_paper.html">SRGAN</a>, por exemplo, explora esse caminho para produzir ampliações visualmente mais realistas.</p>
+<p class="answer-text">Só que uma textura convincente não é garantia de fidelidade. Uma mesma imagem pequena pode ser compatível com diferentes versões em alta resolução, uma ambiguidade discutida em <a class="reference-link" href="https://openaccess.thecvf.com/content/CVPR2021/html/Jo_Tackling_the_Ill-Posedness_of_Super-Resolution_Through_Adaptive_Target_Generation_CVPR_2021_paper.html">pesquisa sobre os limites da super-resolução</a>. A IA pode estimar um detalhe plausível sem que ele corresponda ao que existia na cena.</p>
+<p class="answer-text">Volto, então, à pergunta que começou essa curiosidade: de onde vêm os novos pixels? Eles não estavam escondidos dentro da imagem. Quando aumentamos suas dimensões, algum método precisa estimar quais valores vão ocupar as novas posições. A diferença entre ver quadradinhos, transições suaves ou detalhes estimados está na maneira como essa escolha é feita.</p>
+</section>
+</div>
+                    <p class="answer-text">Link direto do post:
+                        <a class="reference-link" href="post-4/">abrir somente o Post 4</a>.
+                    </p>
                 </div>
             </article>
         </section>
