@@ -527,6 +527,23 @@
         #post-4 .reference-link, .post-4-body .reference-link {
             overflow-wrap: anywhere;
         }
+
+        /* Demonstrações exclusivas do Post 5. */
+        .post-5-body { min-width: 0; }
+        .post-5-body .pixel-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); margin-top: 18px; }
+        .post-5-body .pixel-strip span { padding: 14px 0; text-align: center; background: #141414; color: white; border: 1px solid #68727f; font-family: monospace; }
+        .post-5-body .pixel-strip span:nth-child(n+4) { background: #c8c8c8; color: #141414; }
+        .post-5-body .pixel-strip span:nth-child(4) { border-left: 4px solid var(--accent); }
+        .post-5-body .concept-card { min-width: 0; }
+        .post-5-body .matrix-sample { padding: 12px; font-size: 1rem; }
+        .post-5-body .sobel-demo { display: grid; justify-items: center; gap: 12px; margin-top: 24px; }
+        .post-5-body figure { margin: 0; width: 100%; }
+        .post-5-body figcaption { margin-bottom: 8px; color: var(--accent-dark); }
+        .post-5-body img { display: block; width: 100%; height: auto; border-radius: 8px; image-rendering: pixelated; }
+        .post-5-body .edge-example { height: 100px; border: 1px solid var(--line); border-radius: 8px; }
+        .post-5-body .vertical { background: linear-gradient(to right, #141414 50%, #c8c8c8 50%); }
+        .post-5-body .horizontal { background: linear-gradient(to bottom, #141414 50%, #c8c8c8 50%); }
+        .post-5-body .reference-link { overflow-wrap: anywhere; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -542,6 +559,7 @@
                 <a href="#post-2">Post 2</a>
                 <a href="#post-3">Post 3</a>
                 <a href="#post-4">Post 4</a>
+                <a href="#post-5">Post 5</a>
             </nav>
         </div>
     </header>
@@ -595,6 +613,11 @@
                 <span class="shortcut-number">04</span>
                 <h2>De onde vêm os novos pixels?</h2>
                 <p>Como a interpolação estima os pixels quando aumentamos uma imagem.</p>
+            </a>
+            <a class="shortcut-card" href="#post-5">
+                <span class="shortcut-number">05</span>
+                <h2>Como encontrar as bordas?</h2>
+                <p>Como o operador Sobel destaca mudanças de intensidade entre os pixels.</p>
             </a>
         </section>
 
@@ -968,6 +991,99 @@ Linha de baixo: 100 ───── 150 ───── 200
 </div>
                     <p class="answer-text">Link direto do post:
                         <a class="reference-link" href="post-4/">abrir somente o Post 4</a>.
+                    </p>
+                </div>
+            </article>
+        </section>
+        <section class="content-band">
+            <article class="page-shell post" id="post-5">
+                <aside class="post-meta" aria-label="Informações do post 5">
+                    <span>Post 5</span>
+                    <strong>Detecção de bordas</strong>
+                </aside>
+                <div class="post-body post-5-body">
+<h2>Como um computador encontra as bordas de uma imagem?</h2>
+<p class="post-intro">Quando olhamos para uma imagem, conseguimos perceber facilmente onde um objeto termina e outro começa. Mas como um computador consegue identificar essas fronteiras?</p>
+<p class="answer-text">Nos posts anteriores, fui entendendo como uma imagem vira uma matriz de pixels e como podemos estimar novos valores ao ampliá-la. Agora, a ideia é olhar para os pixels que já temos: uma das formas de encontrar bordas é procurar mudanças significativas de intensidade entre posições próximas.</p>
+<div class="prompt-list">
+<section class="prompt">
+<h3>Uma borda no meio de seis pixels</h3>
+<p class="answer-text">Em uma imagem em tons de cinza de 8 bits, 0 representa preto e 255 representa branco. Imagine estes seis pixels em uma linha:</p>
+<div class="pixel-strip" aria-label="Três pixels escuros de valor 20, seguidos por três pixels claros de valor 200">
+<span>20</span><span>20</span><span>20</span><span>200</span><span>200</span><span>200</span>
+</div>
+<div class="visual-flow"><span class="flow-step">20 → 200: variação de 180</span><span class="flow-step">20 → 21: variação de 1</span></div>
+<p class="answer-text">A passagem de 20 para 200 chama a atenção porque saímos de uma região escura para outra clara de uma vez. É uma possível borda. Já a passagem de 20 para 21 é tão pequena que, sozinha, provavelmente não indica uma borda relevante. O que interessa aqui é a diferença entre vizinhos, não apenas o brilho de um pixel isolado.</p>
+</section>
+<section class="prompt">
+<h3>Em qual direção a intensidade muda?</h3>
+<p class="answer-text">Na disciplina, essa mudança aparece ligada às <strong>derivadas da imagem</strong>. Como temos pixels separados em uma grade, podemos aproximar a derivada comparando valores de uma pequena vizinhança. Ela ajuda a medir quanto a intensidade muda em determinada direção.</p>
+<div class="concept-grid">
+<div class="concept-card"><strong>Gx: mudança na horizontal →</strong>Compara intensidades ao longo do eixo X. Evidencia bordas verticais.</div>
+<div class="concept-card"><strong>Gy: mudança na vertical ↓</strong>Compara intensidades ao longo do eixo Y. Evidencia bordas horizontais.</div>
+</div>
+<p class="answer-text">Essa foi a parte que mais me confundiu no começo: mudar na horizontal destaca uma borda vertical? Sim, porque atravessamos essa borda andando da esquerda para a direita. <strong>A direção da mudança de intensidade é perpendicular à orientação da borda.</strong></p>
+</section>
+<section class="prompt">
+<h3>Como o Sobel faz essa comparação</h3>
+<p class="answer-text">O operador Sobel usa duas matrizes pequenas, chamadas de <em>kernels</em>. Cada uma compara lados opostos de uma vizinhança de 3 × 3 pixels, dando mais peso à linha ou à coluna central:</p>
+<div class="concept-grid">
+<div class="concept-card"><strong>Sobel Gx</strong><pre class="matrix-sample" aria-label="Matriz Sobel Gx"><code>-1  0  1
+-2  0  2
+-1  0  1</code></pre></div>
+<div class="concept-card"><strong>Sobel Gy</strong><pre class="matrix-sample" aria-label="Matriz Sobel Gy"><code>-1 -2 -1
+ 0  0  0
+ 1  2  1</code></pre></div>
+</div>
+<p class="answer-text">Podemos imaginar cada matriz deslizando pela imagem. Em cada posição, multiplicamos os valores dos pixels pelos pesos correspondentes e somamos. Em uma região uniforme, as contribuições positivas e negativas se cancelam. Quando um lado é mais claro que o outro, aparece uma resposta.</p>
+<p class="answer-text">Quanto maior a resposta <strong>em módulo</strong>, mais forte é a mudança de intensidade e maior é a evidência de uma borda. O sinal indica o sentido da variação: trocar claro por escuro pode inverter o sinal sem deixar de ser uma borda.</p>
+<div class="formula-card"><code>G = √(Gx² + Gy²)</code></div>
+<p class="answer-text">Essa magnitude combina as duas respostas. Assim, conseguimos destacar também contornos inclinados, que podem produzir variações nos dois eixos.</p>
+</section>
+<section class="prompt">
+<h3>Da imagem aos contornos</h3>
+<p class="answer-text">Para visualizar o resultado, montei uma imagem com um retângulo e um círculo claros sobre um fundo escuro. As imagens abaixo mostram a entrada e o resultado do cálculo de Sobel sobre ela.</p>
+<div class="sobel-demo">
+<figure><figcaption><strong>Imagem original</strong> · tons de cinza</figcaption><img src="post-5/imagens/original.svg" width="240" height="140" alt="Retângulo cinza-claro à esquerda e círculo mais claro à direita, sobre fundo escuro." loading="lazy"></figure>
+<div class="flow-arrow" aria-hidden="true">↓</div>
+<div class="flow-step">Aplicação do Sobel: Gx e Gy → magnitude</div>
+<div class="flow-arrow" aria-hidden="true">↓</div>
+<figure><figcaption><strong>Bordas detectadas</strong> · magnitude do gradiente</figcaption><img src="post-5/imagens/bordas.svg" width="240" height="140" alt="Contornos do retângulo e do círculo destacados em cinza e branco; interiores uniformes e fundo ficam pretos." loading="lazy"></figure>
+</div>
+<p class="answer-text">O interior das formas praticamente desaparece: ali os pixels têm a mesma intensidade. Já os contornos aparecem porque é onde encontramos a transição entre o fundo e as formas. O círculo fica mais destacado porque seu contraste com o fundo é maior.</p>
+<p class="answer-text">Para exibir o resultado, a maior magnitude foi mapeada para branco e as demais foram escaladas proporcionalmente. Não foi aplicado um limiar: os tons claros mostram a força da resposta, não uma decisão binária de “borda ou não borda”. Nas margens da imagem, o cálculo repete o pixel mais próximo.</p>
+</section>
+<section class="prompt">
+<h3>Separando Gx e Gy</h3>
+<p class="answer-text">Em duas imagens ainda mais simples, a diferença entre as direções fica bem visível:</p>
+<div class="concept-grid">
+<div class="concept-card"><strong>Separação vertical</strong><div class="edge-example vertical" role="img" aria-label="Região escura à esquerda e clara à direita, separadas por uma borda vertical"></div><p>Atravessando da esquerda para a direita →</p><p><strong>Gx forte · Gy zero</strong>No trecho reto, a intensidade muda em X, mas não em Y.</p></div>
+<div class="concept-card"><strong>Separação horizontal</strong><div class="edge-example horizontal" role="img" aria-label="Região escura acima e clara abaixo, separadas por uma borda horizontal"></div><p>Atravessando de cima para baixo ↓</p><p><strong>Gy forte · Gx zero</strong>No trecho reto, a intensidade muda em Y, mas não em X.</p></div>
+</div>
+<p class="answer-text">Esses são exemplos ideais, com regiões uniformes. Em uma fotografia, curvas, texturas e inclinações podem fazer os dois kernels responderem na mesma vizinhança.</p>
+</section>
+<section class="prompt">
+<h3>Nem toda mudança é um contorno de objeto</h3>
+<p class="answer-text">Um ponto de ruído também pode ser muito diferente dos pixels ao redor e acabar destacado como se fosse uma borda. Por isso, em alguns casos, vale suavizar a imagem antes da detecção. É um cuidado com equilíbrio: suavizar demais também pode apagar detalhes que queríamos encontrar.</p>
+</section>
+<section class="prompt">
+<h3>Para que encontrar bordas?</h3>
+<p class="answer-text">Destacar contornos ajuda a identificar formas e analisar objetos. Também pode apoiar a segmentação, que procura separar regiões da imagem, e outras etapas de processamento de imagens e de sistemas de visão computacional.</p>
+<p class="answer-text">Isso não quer dizer que todo sistema de reconhecimento de objetos ou toda câmera de celular use Sobel. O que ficou para mim é que detectar bordas é um conceito fundamental: conseguimos extrair informações sobre a estrutura da imagem observando como seus valores mudam.</p>
+</section>
+<section class="prompt">
+<h3>Uma mudança no jeito de olhar</h3>
+<p class="answer-text">Antes de estudar esse assunto, eu pensava em uma borda apenas como algo visual. Depois de entender esses filtros, passei a enxergá-la também como uma mudança nos valores dos pixels. Achei interessante como uma operação matemática relativamente simples consegue extrair uma informação tão importante de uma imagem.</p>
+<p class="final-note">A borda que eu vejo como o limite de uma forma pode aparecer, para o computador, como uma diferença entre números vizinhos.</p>
+</section>
+<section class="prompt">
+<h3>Referências</h3>
+<p class="answer-text">OpenCV — <a class="reference-link" href="https://docs.opencv.org/4.x/d2/d2c/tutorial_sobel_derivatives.html" target="_blank" rel="noopener noreferrer">Sobel Derivatives</a>. Documentação sobre as derivadas em X e Y e os kernels do operador.</p>
+<p class="answer-text">Universidade de Edimburgo, HIPR2 — <a class="reference-link" href="https://homepages.inf.ed.ac.uk/rbf/HIPR2/sobel.htm" target="_blank" rel="noopener noreferrer">Sobel Edge Detector</a>. Material didático sobre magnitude do gradiente, contornos e efeitos do ruído.</p>
+</section>
+</div>
+                    <p class="answer-text">Link direto do post:
+                        <a class="reference-link" href="post-5/">abrir somente o Post 5</a>.
                     </p>
                 </div>
             </article>
