@@ -544,6 +544,17 @@
         .post-5-body .vertical { background: linear-gradient(to right, #141414 50%, #c8c8c8 50%); }
         .post-5-body .horizontal { background: linear-gradient(to bottom, #141414 50%, #c8c8c8 50%); }
         .post-5-body .reference-link { overflow-wrap: anywhere; text-decoration: underline; }
+
+        .post-6-body { min-width: 0; }
+        .post-6-body .reference-link { text-decoration: underline; overflow-wrap: anywhere; }
+        .post-6-body .concept-card { min-width: 0; }
+        .frequency-strip { height: 88px; border-radius: 8px; border: 1px solid var(--line); }
+        .frequency-low { background: repeating-linear-gradient(90deg, #202020 0 30px, #ededed 30px 60px); }
+        .frequency-high { background: repeating-linear-gradient(90deg, #202020 0 5px, #ededed 5px 10px); }
+        .post-6-body figure { margin: 18px 0 0; }
+        .post-6-body svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
+        .post-6-body figcaption { margin-top: 8px; color: var(--muted); }
+        .post-6-body .formula-card code { overflow-wrap: anywhere; font-size: 1rem; }
     </style>
 </head>
 <body>
@@ -560,6 +571,7 @@
                 <a href="#post-3">Post 3</a>
                 <a href="#post-4">Post 4</a>
                 <a href="#post-5">Post 5</a>
+                <a href="#post-6">Post 6</a>
             </nav>
         </div>
     </header>
@@ -618,6 +630,11 @@
                 <span class="shortcut-number">05</span>
                 <h2>Como encontrar as bordas?</h2>
                 <p>Como o operador Sobel destaca mudanças de intensidade entre os pixels.</p>
+            </a>
+            <a class="shortcut-card" href="#post-6">
+                <span class="shortcut-number">06</span>
+                <h2>O que uma imagem tem a ver com frequência?</h2>
+                <p>Fourier, filtros e o cuidado com aliasing ao reduzir uma imagem.</p>
             </a>
         </section>
 
@@ -1085,6 +1102,57 @@ Linha de baixo: 100 ───── 150 ───── 200
                     <p class="answer-text">Link direto do post:
                         <a class="reference-link" href="post-5/">abrir somente o Post 5</a>.
                     </p>
+                </div>
+            </article>
+        </section>
+        <section class="content-band">
+            <article class="page-shell post" id="post-6">
+                <aside class="post-meta" aria-label="Informações do post 6">
+                    <span>Post 6</span>
+                    <strong>Domínio da frequência</strong>
+                </aside>
+                <div class="post-body post-6-body">
+<h2>O que uma imagem tem a ver com frequência?</h2>
+<p class="post-intro">Depois de estudar como encontrar bordas, fiquei com outra pergunta: e se, em vez de olhar para cada pixel, analisássemos as variações que formam a imagem? A aula sobre domínio da frequência trouxe uma nova maneira de entender filtros, detalhes e até os padrões estranhos que aparecem quando reduzimos uma foto.</p>
+<div class="prompt-list">
+<section class="prompt">
+<h2>Frequência sem som?</h2>
+<p class="answer-text">Quando ouvi “frequência”, pensei primeiro em som. Mas, em uma imagem, a frequência é <strong>espacial</strong>: descreve a rapidez com que a intensidade varia conforme percorremos uma direção. Uma região com mudanças suaves tem predominância de baixas frequências. Listras finas e detalhes que alternam rapidamente entre claro e escuro envolvem frequências mais altas.</p><div class="concept-grid"><div class="concept-card"><strong>Menos alternâncias</strong><div class="frequency-strip frequency-low" role="img" aria-label="Listras largas, com poucas alternâncias entre claro e escuro"></div><p>Listras mais largas: menor frequência fundamental.</p></div><div class="concept-card"><strong>Mais alternâncias</strong><div class="frequency-strip frequency-high" role="img" aria-label="Listras estreitas, com muitas alternâncias entre claro e escuro"></div><p>Listras mais estreitas: maior frequência fundamental.</p></div></div><p class="answer-text">As duas faixas têm transições abruptas e, por isso, também contêm componentes de alta frequência além da fundamental. A diferença ilustrada é a quantidade de repetições no mesmo espaço. Frequência não é sinônimo de brilho: uma região toda branca é intensa, mas não varia.</p>
+</section>
+<section class="prompt">
+<h2>De pixels para uma soma de ondas</h2>
+<p class="answer-text">No domínio espacial, enxergamos a imagem como uma matriz: cada posição guarda a intensidade de um pixel. A <strong>Transformada de Fourier</strong> permite representar essa mesma informação por componentes senoidais, com diferentes frequências, amplitudes e fases. A ideia apresentada na aula vem dos estudos de Fourier sobre a decomposição de funções periódicas em senos e cossenos.</p><p class="answer-text">Para uma imagem digital, usamos a transformada discreta em duas dimensões, a DFT. Em vez de perguntar “qual é o valor deste pixel?”, passamos a perguntar “quanto de cada padrão de variação existe na imagem?”. A FFT é uma forma eficiente de calcular a DFT.</p><div class="visual-flow"><span class="flow-step">Pixels: f(r, c)</span><span class="flow-arrow" aria-hidden="true">→</span><span class="flow-step">DFT</span><span class="flow-arrow" aria-hidden="true">→</span><span class="flow-step">Frequências: F(u, v)</span></div><p class="answer-text">Como a imagem tem linhas e colunas, analisamos variações nas duas direções. Os coeficientes de Fourier são números complexos, com parte real e imaginária. Isso permite guardar tanto a amplitude quanto a fase de cada componente.</p>
+</section>
+<section class="prompt">
+<h2>Como ler o espectro</h2>
+<p class="answer-text">A <strong>magnitude</strong> indica a intensidade de cada componente de frequência. A <strong>fase</strong> descreve seu deslocamento e participa da organização espacial das estruturas. Olhar apenas a magnitude ajuda a visualizar o conteúdo de frequências, mas não fornece toda a informação necessária para reconstruir a imagem.</p><p class="answer-text">É comum exibir o espectro com a frequência zero deslocada para o centro. Nessa visualização centralizada, as baixas frequências ficam perto do centro, e as altas ficam mais afastadas. Sem esse deslocamento, o coeficiente de frequência zero fica na origem da matriz. Também se costuma usar uma escala logarítmica para tornar componentes menores visíveis.</p><p class="answer-text">Uma imagem constante é um bom caso para entender: só tem a componente de frequência zero, associada ao nível médio de intensidade. Já um impulso ideal, como um único pixel não nulo sobre fundo zero, tem magnitude constante no domínio da frequência. Esse contraste aparece na aula como exemplo de <strong>dualidade</strong>.</p>
+</section>
+<section class="prompt">
+<h2>Dá para voltar à imagem original?</h2>
+<p class="answer-text">Sim. A transformada inversa recupera a imagem a partir dos coeficientes complexos. Se preservarmos todos eles, a transformação é reversível, desconsiderando pequenos erros numéricos do cálculo no computador.</p><p class="answer-text">Mas existe uma diferença entre transformar e filtrar. Se apagarmos frequências antes de aplicar a inversa, a imagem reconstruída muda. A transformada inversa não consegue recuperar componentes que nós mesmos descartamos.</p>
+</section>
+<section class="prompt">
+<h2>Filtrar é escolher quais frequências passam</h2>
+<p class="answer-text">Um <strong>filtro passa-baixa</strong> preserva as frequências mais baixas e atenua as mais altas. Ao voltar ao domínio espacial, o resultado tende a ficar mais suave. Isso pode reduzir ruído, mas também diminuir a nitidez de contornos e detalhes.</p><p class="answer-text">Um <strong>passa-alta</strong> atenua as baixas frequências e preserva as altas, destacando mudanças rápidas. Isso se conecta ao post de bordas: contornos envolvem variações de intensidade, mas ruído e texturas também podem produzir componentes de alta frequência.</p><div class="formula-card"><code>G(u, v) = H(u, v) · F(u, v)</code></div><p class="answer-text">Aqui, F é a transformada da imagem, H é a resposta do filtro e G é o resultado filtrado no domínio da frequência. Aplicamos a transformada inversa de G para obter a imagem de saída.</p><p class="answer-text">A aula mostra uma ligação importante: a convolução no domínio espacial corresponde à multiplicação no domínio da frequência. Na DFT, essa relação é de convolução circular; para reproduzir uma convolução linear, precisamos cuidar do preenchimento das bordas, por exemplo com zeros.</p>
+</section>
+<section class="prompt">
+<h2>Quando a amostragem inventa um padrão</h2>
+<p class="answer-text">Imagine a linha de pixels abaixo, alternando preto e branco. Se reduzirmos a largura pela metade escolhendo sempre o primeiro pixel de cada par, só sobram pixels pretos. Se começássemos pelo segundo, só sobrariam brancos. Um padrão que alternava rapidamente passa a parecer uma região uniforme.</p><figure><svg viewBox="0 0 360 168" role="img" aria-label="Exemplo: listras alternadas na entrada; redução sem filtro fica preta; redução com média dos pares fica cinza uniforme" xmlns="http://www.w3.org/2000/svg"><rect width="360" height="168" fill="#fff"/><text x="12" y="21" font-size="12" font-family="Arial" fill="#1f2933">Entrada: 16 pixels</text><rect x="12.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="33.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="54.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="75.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="96.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="117.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="138.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="159.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="180.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="201.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="222.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="243.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="264.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="285.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="306.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="327.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><text x="12" y="74" font-size="12" font-family="Arial" fill="#1f2933">Redução sem filtro: 8 pixels</text><rect x="12.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="54.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="96.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="138.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="180.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="222.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="264.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="306.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><text x="12" y="127" font-size="12" font-family="Arial" fill="#1f2933">Média dos pares antes de reduzir</text><rect x="12.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="54.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="96.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="138.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="180.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="222.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="264.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="306.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/></svg><figcaption>Exemplo didático calculado: 0, 255, 0, 255… → seleção de um pixel por par: 0, 0, 0…; média de cada par: 127,5, arredondada para 128 na visualização.</figcaption></figure><p class="answer-text">Isso é <strong>aliasing</strong>: frequências diferentes se tornam indistinguíveis nas amostras. Em imagens, pode aparecer como serrilhados ou padrões falsos, como moiré em tecidos e grades. No tempo, um exemplo é a roda que parece girar para trás em um vídeo.</p>
+</section>
+<section class="prompt">
+<h2>Nyquist e o cuidado antes de reduzir</h2>
+<p class="answer-text">Para um sinal de banda limitada, o teorema da amostragem apresentado na aula exige uma taxa de amostragem maior que o dobro da maior frequência presente. Se ΔT é o intervalo entre amostras, a taxa é fₛ = 1/ΔT. Quanto maior o intervalo, menor a taxa.</p><div class="formula-card"><code>fₛ &gt; 2 · fₘₐₓ</code></div><p class="answer-text">Ao reduzir uma imagem, diminuímos a quantidade de amostras disponíveis. Por isso, aplicamos um filtro passa-baixa <strong>antes da reamostragem</strong>, atenuando frequências que a nova grade não consegue representar. Esse é o princípio do antialiasing.</p><p class="answer-text">Na faixa acima, a média dos pares funciona como um filtro simples e remove a alternância extrema antes da redução. É uma demonstração específica: na prática, a escolha do filtro depende da escala e uma média de dois pixels não resolve todos os casos de aliasing.</p><p class="answer-text">Isso também completa a discussão sobre interpolação: ampliar cria mais posições para estimar, mas não recupera automaticamente detalhes ausentes. Reduzir exige cuidado com a informação que deixa de caber na nova grade.</p>
+</section>
+<section class="prompt">
+<h2>O que mudou no meu jeito de olhar</h2>
+<p class="answer-text">Até aqui, eu vinha pensando em imagens principalmente como pixels e seus vizinhos. O domínio da frequência mostra outro jeito de analisar a mesma imagem: pelas variações que a compõem. Achei interessante perceber que suavizar uma foto, destacar contornos e evitar padrões falsos ao reduzir têm uma conexão matemática.</p><p class="final-note">Uma imagem pode ser vista como uma matriz de intensidades ou como uma combinação de frequências. Mudar a representação ajuda a entender quais detalhes um filtro preserva e quais ele elimina.</p>
+</section>
+<section class="prompt">
+<h2>Referência da aula</h2>
+<p class="answer-text">KISHIMOTO, André. <cite>Domínio da Frequência</cite>. Material de aula de Computação Visual, Ciência da Computação, 2026. Tópicos utilizados: Fourier e transformada inversa (slides 4–18), dualidade e filtragem (21–30), amostragem, aliasing e antialiasing (31–50).</p><p class="answer-text">O material se baseia, entre outras obras, em <cite>Processamento digital de imagens</cite>, de R. C. Gonzalez e R. E. Woods, 3ª ed., 2010, e <cite>Introduction to Visual Computing</cite>, de A. Majumder e M. Gopi, 2018. Os exemplos visuais deste post foram elaborados para a explicação.</p>
+</section>
+</div>
+                    <p class="answer-text">Link direto para este conteúdo: <a class="reference-link" href="post-6/">abrir somente o Post 6</a>.</p>
                 </div>
             </article>
         </section>

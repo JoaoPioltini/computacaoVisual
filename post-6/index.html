@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post 6 - O que uma imagem tem a ver com frequência?</title>
+    <style>
+        :root {
+            --bg: #f7f4ef;
+            --panel: #ffffff;
+            --ink: #1f2933;
+            --muted: #68727f;
+            --line: #ded8cf;
+            --accent: #1b7f79;
+            --accent-dark: #135f5b;
+            --highlight: #f2c14e;
+            --soft-blue: #d9e8f5;
+            --shadow: 0 18px 48px rgba(31, 41, 51, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(242, 193, 78, 0.22), transparent 34rem),
+                linear-gradient(135deg, #f7f4ef 0%, #ecf2f4 100%);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .page-shell {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid rgba(222, 216, 207, 0.85);
+            background: rgba(247, 244, 239, 0.92);
+            backdrop-filter: blur(14px);
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            min-height: 72px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            border: 2px solid var(--ink);
+            border-radius: 8px;
+            background: var(--highlight);
+            box-shadow: 5px 5px 0 var(--ink);
+            font-size: 1.1rem;
+        }
+
+        .nav-link {
+            min-height: 40px;
+            padding: 9px 14px;
+            border: 1px solid var(--accent);
+            border-radius: 999px;
+            color: var(--accent-dark);
+            background: rgba(27, 127, 121, 0.08);
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .nav-link:hover,
+        .nav-link:focus {
+            background: rgba(27, 127, 121, 0.14);
+            outline: none;
+        }
+
+        .content-band {
+            padding: 64px 0;
+            background: rgba(255, 255, 255, 0.38);
+        }
+
+        .post {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 42px;
+            align-items: start;
+        }
+
+        .post-meta {
+            position: sticky;
+            top: 104px;
+            padding: 20px;
+            border-left: 5px solid var(--accent);
+            background: rgba(255, 255, 255, 0.72);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .post-meta span {
+            display: block;
+            color: var(--accent-dark);
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .post-meta strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 1.25rem;
+        }
+
+        .post-body {
+            padding: 34px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+        }
+
+        h1,
+        h2 {
+            margin: 0;
+            line-height: 1.12;
+            letter-spacing: 0;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+        }
+
+        .post-intro {
+            margin: 22px 0 0;
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        .prompt-list {
+            display: grid;
+            gap: 18px;
+            margin-top: 28px;
+        }
+
+        .prompt {
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fbfaf7;
+        }
+
+        .prompt h2 {
+            font-size: 1.15rem;
+        }
+
+        .answer-text {
+            margin: 16px 0 0;
+            color: var(--muted);
+            font-size: 1.05rem;
+        }
+
+        .visual-flow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin: 18px 0 0;
+        }
+
+        .flow-step {
+            display: inline-flex;
+            min-height: 40px;
+            align-items: center;
+            padding: 8px 12px;
+            border: 1px solid rgba(27, 127, 121, 0.22);
+            border-radius: 8px;
+            background: rgba(217, 232, 245, 0.58);
+            color: var(--accent-dark);
+            font-weight: 800;
+        }
+
+        .flow-arrow {
+            color: var(--muted);
+            font-weight: 900;
+        }
+
+        .formula-card {
+            margin: 18px 0 0;
+            padding: 18px;
+            border: 1px solid rgba(27, 127, 121, 0.24);
+            border-radius: 8px;
+            background: #eef7f3;
+        }
+
+        .formula-card code {
+            display: block;
+            color: var(--ink);
+            font-size: 1.18rem;
+            font-weight: 800;
+            white-space: normal;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin: 18px 0 0;
+        }
+
+        .concept-card {
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .concept-card strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent-dark);
+        }
+
+        .matrix-sample {
+            margin: 18px 0 0;
+            padding: 18px;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--ink);
+            color: #ffffff;
+            font-size: 1.08rem;
+            line-height: 1.7;
+        }
+
+        .matrix-sample code {
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .final-note {
+            margin: 18px 0 0;
+            padding: 18px;
+            border-left: 5px solid var(--highlight);
+            border-radius: 0 8px 8px 0;
+            background: #fff8df;
+            color: var(--ink);
+            font-weight: 700;
+        }
+
+        .site-footer {
+            padding: 34px 0;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 820px) {
+            .topbar,
+            .post {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                padding: 16px 0;
+            }
+
+            .post-meta {
+                position: static;
+            }
+
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .page-shell {
+                width: min(100% - 22px, 1120px);
+            }
+
+            .brand {
+                align-items: flex-start;
+            }
+
+            .brand-mark {
+                flex: 0 0 auto;
+            }
+
+            .nav-link {
+                padding: 8px 11px;
+                font-size: 0.88rem;
+            }
+
+            .post-body {
+                padding: 22px;
+            }
+        }
+
+
+
+        .post-6-body { min-width: 0; }
+        .post-6-body .reference-link { text-decoration: underline; overflow-wrap: anywhere; }
+        .post-6-body .concept-card { min-width: 0; }
+        .frequency-strip { height: 88px; border-radius: 8px; border: 1px solid var(--line); }
+        .frequency-low { background: repeating-linear-gradient(90deg, #202020 0 30px, #ededed 30px 60px); }
+        .frequency-high { background: repeating-linear-gradient(90deg, #202020 0 5px, #ededed 5px 10px); }
+        .post-6-body figure { margin: 18px 0 0; }
+        .post-6-body svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
+        .post-6-body figcaption { margin-top: 8px; color: var(--muted); }
+        .post-6-body .formula-card code { overflow-wrap: anywhere; font-size: 1rem; }
+</style>
+
+</head>
+<body>
+    <header class="site-header">
+        <div class="page-shell topbar">
+            <a class="brand" href="../index.html" aria-label="Voltar para a página principal">
+                <span class="brand-mark">CV</span>
+                <span>Blog de Computação Visual</span>
+            </a>
+
+            <a class="nav-link" href="../index.html#post-6">Voltar para todos os posts</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="content-band">
+            <article class="page-shell post">
+                <aside class="post-meta" aria-label="Informações do post 6">
+                    <span>Post 6</span>
+                    <strong>Domínio da frequência</strong>
+                </aside>
+
+                <div class="post-body post-6-body">
+<h1>O que uma imagem tem a ver com frequência?</h1>
+<p class="post-intro">Depois de estudar como encontrar bordas, fiquei com outra pergunta: e se, em vez de olhar para cada pixel, analisássemos as variações que formam a imagem? A aula sobre domínio da frequência trouxe uma nova maneira de entender filtros, detalhes e até os padrões estranhos que aparecem quando reduzimos uma foto.</p>
+<div class="prompt-list">
+<section class="prompt">
+<h2>Frequência sem som?</h2>
+<p class="answer-text">Quando ouvi “frequência”, pensei primeiro em som. Mas, em uma imagem, a frequência é <strong>espacial</strong>: descreve a rapidez com que a intensidade varia conforme percorremos uma direção. Uma região com mudanças suaves tem predominância de baixas frequências. Listras finas e detalhes que alternam rapidamente entre claro e escuro envolvem frequências mais altas.</p><div class="concept-grid"><div class="concept-card"><strong>Menos alternâncias</strong><div class="frequency-strip frequency-low" role="img" aria-label="Listras largas, com poucas alternâncias entre claro e escuro"></div><p>Listras mais largas: menor frequência fundamental.</p></div><div class="concept-card"><strong>Mais alternâncias</strong><div class="frequency-strip frequency-high" role="img" aria-label="Listras estreitas, com muitas alternâncias entre claro e escuro"></div><p>Listras mais estreitas: maior frequência fundamental.</p></div></div><p class="answer-text">As duas faixas têm transições abruptas e, por isso, também contêm componentes de alta frequência além da fundamental. A diferença ilustrada é a quantidade de repetições no mesmo espaço. Frequência não é sinônimo de brilho: uma região toda branca é intensa, mas não varia.</p>
+</section>
+<section class="prompt">
+<h2>De pixels para uma soma de ondas</h2>
+<p class="answer-text">No domínio espacial, enxergamos a imagem como uma matriz: cada posição guarda a intensidade de um pixel. A <strong>Transformada de Fourier</strong> permite representar essa mesma informação por componentes senoidais, com diferentes frequências, amplitudes e fases. A ideia apresentada na aula vem dos estudos de Fourier sobre a decomposição de funções periódicas em senos e cossenos.</p><p class="answer-text">Para uma imagem digital, usamos a transformada discreta em duas dimensões, a DFT. Em vez de perguntar “qual é o valor deste pixel?”, passamos a perguntar “quanto de cada padrão de variação existe na imagem?”. A FFT é uma forma eficiente de calcular a DFT.</p><div class="visual-flow"><span class="flow-step">Pixels: f(r, c)</span><span class="flow-arrow" aria-hidden="true">→</span><span class="flow-step">DFT</span><span class="flow-arrow" aria-hidden="true">→</span><span class="flow-step">Frequências: F(u, v)</span></div><p class="answer-text">Como a imagem tem linhas e colunas, analisamos variações nas duas direções. Os coeficientes de Fourier são números complexos, com parte real e imaginária. Isso permite guardar tanto a amplitude quanto a fase de cada componente.</p>
+</section>
+<section class="prompt">
+<h2>Como ler o espectro</h2>
+<p class="answer-text">A <strong>magnitude</strong> indica a intensidade de cada componente de frequência. A <strong>fase</strong> descreve seu deslocamento e participa da organização espacial das estruturas. Olhar apenas a magnitude ajuda a visualizar o conteúdo de frequências, mas não fornece toda a informação necessária para reconstruir a imagem.</p><p class="answer-text">É comum exibir o espectro com a frequência zero deslocada para o centro. Nessa visualização centralizada, as baixas frequências ficam perto do centro, e as altas ficam mais afastadas. Sem esse deslocamento, o coeficiente de frequência zero fica na origem da matriz. Também se costuma usar uma escala logarítmica para tornar componentes menores visíveis.</p><p class="answer-text">Uma imagem constante é um bom caso para entender: só tem a componente de frequência zero, associada ao nível médio de intensidade. Já um impulso ideal, como um único pixel não nulo sobre fundo zero, tem magnitude constante no domínio da frequência. Esse contraste aparece na aula como exemplo de <strong>dualidade</strong>.</p>
+</section>
+<section class="prompt">
+<h2>Dá para voltar à imagem original?</h2>
+<p class="answer-text">Sim. A transformada inversa recupera a imagem a partir dos coeficientes complexos. Se preservarmos todos eles, a transformação é reversível, desconsiderando pequenos erros numéricos do cálculo no computador.</p><p class="answer-text">Mas existe uma diferença entre transformar e filtrar. Se apagarmos frequências antes de aplicar a inversa, a imagem reconstruída muda. A transformada inversa não consegue recuperar componentes que nós mesmos descartamos.</p>
+</section>
+<section class="prompt">
+<h2>Filtrar é escolher quais frequências passam</h2>
+<p class="answer-text">Um <strong>filtro passa-baixa</strong> preserva as frequências mais baixas e atenua as mais altas. Ao voltar ao domínio espacial, o resultado tende a ficar mais suave. Isso pode reduzir ruído, mas também diminuir a nitidez de contornos e detalhes.</p><p class="answer-text">Um <strong>passa-alta</strong> atenua as baixas frequências e preserva as altas, destacando mudanças rápidas. Isso se conecta ao post de bordas: contornos envolvem variações de intensidade, mas ruído e texturas também podem produzir componentes de alta frequência.</p><div class="formula-card"><code>G(u, v) = H(u, v) · F(u, v)</code></div><p class="answer-text">Aqui, F é a transformada da imagem, H é a resposta do filtro e G é o resultado filtrado no domínio da frequência. Aplicamos a transformada inversa de G para obter a imagem de saída.</p><p class="answer-text">A aula mostra uma ligação importante: a convolução no domínio espacial corresponde à multiplicação no domínio da frequência. Na DFT, essa relação é de convolução circular; para reproduzir uma convolução linear, precisamos cuidar do preenchimento das bordas, por exemplo com zeros.</p>
+</section>
+<section class="prompt">
+<h2>Quando a amostragem inventa um padrão</h2>
+<p class="answer-text">Imagine a linha de pixels abaixo, alternando preto e branco. Se reduzirmos a largura pela metade escolhendo sempre o primeiro pixel de cada par, só sobram pixels pretos. Se começássemos pelo segundo, só sobrariam brancos. Um padrão que alternava rapidamente passa a parecer uma região uniforme.</p><figure><svg viewBox="0 0 360 168" role="img" aria-label="Exemplo: listras alternadas na entrada; redução sem filtro fica preta; redução com média dos pares fica cinza uniforme" xmlns="http://www.w3.org/2000/svg"><rect width="360" height="168" fill="#fff"/><text x="12" y="21" font-size="12" font-family="Arial" fill="#1f2933">Entrada: 16 pixels</text><rect x="12.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="33.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="54.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="75.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="96.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="117.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="138.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="159.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="180.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="201.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="222.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="243.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="264.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="285.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><rect x="306.0" y="30" width="21.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="327.0" y="30" width="21.0" height="23" fill="rgb(255,255,255)" stroke="#999" stroke-width="0.5"/><text x="12" y="74" font-size="12" font-family="Arial" fill="#1f2933">Redução sem filtro: 8 pixels</text><rect x="12.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="54.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="96.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="138.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="180.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="222.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="264.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><rect x="306.0" y="83" width="42.0" height="23" fill="rgb(0,0,0)" stroke="#999" stroke-width="0.5"/><text x="12" y="127" font-size="12" font-family="Arial" fill="#1f2933">Média dos pares antes de reduzir</text><rect x="12.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="54.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="96.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="138.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="180.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="222.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="264.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/><rect x="306.0" y="136" width="42.0" height="23" fill="rgb(128,128,128)" stroke="#999" stroke-width="0.5"/></svg><figcaption>Exemplo didático calculado: 0, 255, 0, 255… → seleção de um pixel por par: 0, 0, 0…; média de cada par: 127,5, arredondada para 128 na visualização.</figcaption></figure><p class="answer-text">Isso é <strong>aliasing</strong>: frequências diferentes se tornam indistinguíveis nas amostras. Em imagens, pode aparecer como serrilhados ou padrões falsos, como moiré em tecidos e grades. No tempo, um exemplo é a roda que parece girar para trás em um vídeo.</p>
+</section>
+<section class="prompt">
+<h2>Nyquist e o cuidado antes de reduzir</h2>
+<p class="answer-text">Para um sinal de banda limitada, o teorema da amostragem apresentado na aula exige uma taxa de amostragem maior que o dobro da maior frequência presente. Se ΔT é o intervalo entre amostras, a taxa é fₛ = 1/ΔT. Quanto maior o intervalo, menor a taxa.</p><div class="formula-card"><code>fₛ &gt; 2 · fₘₐₓ</code></div><p class="answer-text">Ao reduzir uma imagem, diminuímos a quantidade de amostras disponíveis. Por isso, aplicamos um filtro passa-baixa <strong>antes da reamostragem</strong>, atenuando frequências que a nova grade não consegue representar. Esse é o princípio do antialiasing.</p><p class="answer-text">Na faixa acima, a média dos pares funciona como um filtro simples e remove a alternância extrema antes da redução. É uma demonstração específica: na prática, a escolha do filtro depende da escala e uma média de dois pixels não resolve todos os casos de aliasing.</p><p class="answer-text">Isso também completa a discussão sobre interpolação: ampliar cria mais posições para estimar, mas não recupera automaticamente detalhes ausentes. Reduzir exige cuidado com a informação que deixa de caber na nova grade.</p>
+</section>
+<section class="prompt">
+<h2>O que mudou no meu jeito de olhar</h2>
+<p class="answer-text">Até aqui, eu vinha pensando em imagens principalmente como pixels e seus vizinhos. O domínio da frequência mostra outro jeito de analisar a mesma imagem: pelas variações que a compõem. Achei interessante perceber que suavizar uma foto, destacar contornos e evitar padrões falsos ao reduzir têm uma conexão matemática.</p><p class="final-note">Uma imagem pode ser vista como uma matriz de intensidades ou como uma combinação de frequências. Mudar a representação ajuda a entender quais detalhes um filtro preserva e quais ele elimina.</p>
+</section>
+<section class="prompt">
+<h2>Referência da aula</h2>
+<p class="answer-text">KISHIMOTO, André. <cite>Domínio da Frequência</cite>. Material de aula de Computação Visual, Ciência da Computação, 2026. Tópicos utilizados: Fourier e transformada inversa (slides 4–18), dualidade e filtragem (21–30), amostragem, aliasing e antialiasing (31–50).</p><p class="answer-text">O material se baseia, entre outras obras, em <cite>Processamento digital de imagens</cite>, de R. C. Gonzalez e R. E. Woods, 3ª ed., 2010, e <cite>Introduction to Visual Computing</cite>, de A. Majumder e M. Gopi, 2018. Os exemplos visuais deste post foram elaborados para a explicação.</p>
+</section>
+</div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="page-shell">
+            <span>Blog acadêmico de Computação Visual</span>
+        </div>
+    </footer>
+</body>
+</html>
