@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post 7 - Como um editor apaga um objeto sem deixar um buraco?</title>
+    <style>
+        :root {
+            --bg: #f7f4ef;
+            --panel: #ffffff;
+            --ink: #1f2933;
+            --muted: #68727f;
+            --line: #ded8cf;
+            --accent: #1b7f79;
+            --accent-dark: #135f5b;
+            --highlight: #f2c14e;
+            --soft-blue: #d9e8f5;
+            --shadow: 0 18px 48px rgba(31, 41, 51, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(242, 193, 78, 0.22), transparent 34rem),
+                linear-gradient(135deg, #f7f4ef 0%, #ecf2f4 100%);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .page-shell {
+            width: min(1120px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border-bottom: 1px solid rgba(222, 216, 207, 0.85);
+            background: rgba(247, 244, 239, 0.92);
+            backdrop-filter: blur(14px);
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            min-height: 72px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 42px;
+            height: 42px;
+            place-items: center;
+            border: 2px solid var(--ink);
+            border-radius: 8px;
+            background: var(--highlight);
+            box-shadow: 5px 5px 0 var(--ink);
+            font-size: 1.1rem;
+        }
+
+        .nav-link {
+            min-height: 40px;
+            padding: 9px 14px;
+            border: 1px solid var(--accent);
+            border-radius: 999px;
+            color: var(--accent-dark);
+            background: rgba(27, 127, 121, 0.08);
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .nav-link:hover,
+        .nav-link:focus {
+            background: rgba(27, 127, 121, 0.14);
+            outline: none;
+        }
+
+        .content-band {
+            padding: 64px 0;
+            background: rgba(255, 255, 255, 0.38);
+        }
+
+        .post {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 42px;
+            align-items: start;
+        }
+
+        .post-meta {
+            position: sticky;
+            top: 104px;
+            padding: 20px;
+            border-left: 5px solid var(--accent);
+            background: rgba(255, 255, 255, 0.72);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .post-meta span {
+            display: block;
+            color: var(--accent-dark);
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .post-meta strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 1.25rem;
+        }
+
+        .post-body {
+            padding: 34px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: var(--shadow);
+        }
+
+        h1,
+        h2 {
+            margin: 0;
+            line-height: 1.12;
+            letter-spacing: 0;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+        }
+
+        .post-intro {
+            margin: 22px 0 0;
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        .prompt-list {
+            display: grid;
+            gap: 18px;
+            margin-top: 28px;
+        }
+
+        .prompt {
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fbfaf7;
+        }
+
+        .prompt h2 {
+            font-size: 1.15rem;
+        }
+
+        .answer-text {
+            margin: 16px 0 0;
+            color: var(--muted);
+            font-size: 1.05rem;
+        }
+
+        .visual-flow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin: 18px 0 0;
+        }
+
+        .flow-step {
+            display: inline-flex;
+            min-height: 40px;
+            align-items: center;
+            padding: 8px 12px;
+            border: 1px solid rgba(27, 127, 121, 0.22);
+            border-radius: 8px;
+            background: rgba(217, 232, 245, 0.58);
+            color: var(--accent-dark);
+            font-weight: 800;
+        }
+
+        .flow-arrow {
+            color: var(--muted);
+            font-weight: 900;
+        }
+
+        .formula-card {
+            margin: 18px 0 0;
+            padding: 18px;
+            border: 1px solid rgba(27, 127, 121, 0.24);
+            border-radius: 8px;
+            background: #eef7f3;
+        }
+
+        .formula-card code {
+            display: block;
+            color: var(--ink);
+            font-size: 1.18rem;
+            font-weight: 800;
+            white-space: normal;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin: 18px 0 0;
+        }
+
+        .concept-card {
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .concept-card strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent-dark);
+        }
+
+        .matrix-sample {
+            margin: 18px 0 0;
+            padding: 18px;
+            overflow-x: auto;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: var(--ink);
+            color: #ffffff;
+            font-size: 1.08rem;
+            line-height: 1.7;
+        }
+
+        .matrix-sample code {
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        .final-note {
+            margin: 18px 0 0;
+            padding: 18px;
+            border-left: 5px solid var(--highlight);
+            border-radius: 0 8px 8px 0;
+            background: #fff8df;
+            color: var(--ink);
+            font-weight: 700;
+        }
+
+        .site-footer {
+            padding: 34px 0;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 820px) {
+            .topbar,
+            .post {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                padding: 16px 0;
+            }
+
+            .post-meta {
+                position: static;
+            }
+
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .page-shell {
+                width: min(100% - 22px, 1120px);
+            }
+
+            .brand {
+                align-items: flex-start;
+            }
+
+            .brand-mark {
+                flex: 0 0 auto;
+            }
+
+            .nav-link {
+                padding: 8px 11px;
+                font-size: 0.88rem;
+            }
+
+            .post-body {
+                padding: 22px;
+            }
+        }
+
+
+
+        .post-6-body { min-width: 0; }
+        .post-6-body .reference-link { text-decoration: underline; overflow-wrap: anywhere; }
+        .post-6-body .concept-card { min-width: 0; }
+        .frequency-strip { height: 88px; border-radius: 8px; border: 1px solid var(--line); }
+        .frequency-low { background: repeating-linear-gradient(90deg, #202020 0 30px, #ededed 30px 60px); }
+        .frequency-high { background: repeating-linear-gradient(90deg, #202020 0 5px, #ededed 5px 10px); }
+        .post-6-body figure { margin: 18px 0 0; }
+        .post-6-body svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
+        .post-6-body figcaption { margin-top: 8px; color: var(--muted); }
+        .post-6-body .formula-card code { overflow-wrap: anywhere; font-size: 1rem; }
+
+        .post-7-body { min-width: 0; }
+        .post-7-body .reference-link { text-decoration: underline; overflow-wrap: anywhere; }
+        .post-7-body .concept-card { min-width: 0; }
+        .inpaint-demo { margin: 20px 0 0; }
+        .inpaint-demo input { accent-color: var(--accent); width: 20px; height: 20px; vertical-align: middle; }
+        .inpaint-demo label { font-weight: 700; cursor: pointer; }
+        .demo-scene { position: relative; height: 180px; margin-top: 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: repeating-linear-gradient(0deg, transparent 0 43px, #bcb5aa 43px 46px), repeating-linear-gradient(90deg, #e4ddd1 0 87px, #bcb5aa 87px 90px); }
+        .demo-object { position: absolute; width: 66px; height: 108px; left: calc(50% - 33px); top: 36px; border-radius: 8px; background: #1b7f79; border: 3px solid #135f5b; }
+        .demo-mask { display: none; position: absolute; inset: 25px calc(50% - 44px); background: rgba(242,193,78,.7); border: 3px dashed #5f4800; }
+        .demo-mask::after { content: 'Máscara'; position: absolute; top: 46px; left: 5px; color: #1f2933; font-weight: bold; font-size: 14px; }
+        .inpaint-demo input:checked ~ .demo-scene .demo-object { display: none; }
+        .inpaint-demo input:not(:checked) ~ .demo-scene .demo-mask { display: block; }
+        .demo-caption { color: var(--muted); font-size: .95rem; }
+    </style>
+
+</head>
+<body>
+    <header class="site-header">
+        <div class="page-shell topbar">
+            <a class="brand" href="../index.html" aria-label="Voltar para a página principal">
+                <span class="brand-mark">CV</span>
+                <span>Blog de Computação Visual</span>
+            </a>
+
+            <a class="nav-link" href="../index.html#post-7">Voltar para todos os posts</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="content-band">
+            <article class="page-shell post">
+                <aside class="post-meta" aria-label="Informações do post 7">
+                    <span>Post 7</span>
+                    <strong>Inpainting e remoção de objetos</strong>
+                </aside>
+
+                <div class="post-body post-7-body">
+<h1>Como um editor apaga um objeto sem deixar um buraco?</h1>
+<p class="post-intro">Você seleciona um objeto em uma foto, pede para removê-lo e o fundo parece continuar no lugar. Fui pesquisar como esse preenchimento funciona e encontrei o inpainting: um problema de computação visual que vai de combinações de pixels vizinhos a redes neurais.</p>
+<div class="prompt-list">
+<section class="prompt">
+<h2>Apagar é só o começo</h2>
+<p class="answer-text">Imagine uma foto de uma parede com uma lixeira na frente. Selecionar a lixeira e apagar seus pixels deixa um buraco: ainda precisamos decidir o que colocar ali. Pintar tudo de uma cor pode funcionar em um fundo uniforme, mas fica evidente quando existem juntas, sombras ou textura.</p><p class="answer-text">Esse preenchimento de regiões ausentes ou indesejadas é chamado de <strong>inpainting</strong>. Ele pode servir tanto para remover um objeto quanto para reparar riscos em fotografias. O objetivo é produzir uma continuação visualmente coerente com o entorno, como explica o <a class="reference-link" href="https://docs.opencv.org/4.x/df/d3d/tutorial_py_inpainting.html">tutorial de inpainting do OpenCV</a>.</p>
+</section>
+<section class="prompt">
+<h2>Como o programa sabe onde mexer?</h2>
+<p class="answer-text">Além da imagem, o algoritmo recebe uma <strong>máscara</strong>: uma indicação das posições que precisam ser preenchidas. No OpenCV, ela tem a mesma largura e altura da entrada; valores diferentes de zero marcam a área a reconstruir. A máscara informa <em>onde</em> editar, sem dizer exatamente <em>o que</em> deve aparecer.</p><p class="answer-text">No exemplo abaixo, a região amarela marca o objeto. Ao alternar a opção, vemos uma continuação idealizada das linhas do fundo.</p><div class="inpaint-demo"><input type="checkbox" id="show-fill"><label for="show-fill"> Mostrar preenchimento ilustrativo</label><div class="demo-scene" role="img" aria-label="Parede quadriculada com objeto verde e máscara amarela; ao marcar a opção, o fundo aparece contínuo"><span class="demo-object"></span><span class="demo-mask"></span></div><p class="demo-caption">Esquema didático em CSS: a interação oculta o objeto para revelar um fundo previamente desenhado. Não executa um algoritmo de inpainting.</p></div><p class="answer-text">Em uma fotografia real, esse fundo não está guardado em uma camada secreta. O programa precisa estimá-lo. Se a máscara deixar um pedaço do objeto de fora, esse pedaço pode continuar visível; se incluir uma região importante do cenário, também pediremos que ela seja refeita.</p>
+</section>
+<section class="prompt">
+<h2>Uma saída: continuar a informação dos vizinhos</h2>
+<p class="answer-text">Uma abordagem clássica parte da borda da região e avança para dentro. O método de Telea, disponível no OpenCV, estima valores usando uma combinação ponderada de pixels conhecidos próximos. A ordem do preenchimento e os pesos ajudam a levar informação do entorno para o interior.</p><p class="answer-text">É uma ideia intuitiva para um risco estreito atravessando uma superfície suave: existe bastante contexto perto de cada posição danificada. Em um buraco grande, prolongar apenas informações locais pode ter dificuldade para manter detalhes. O tutorial do OpenCV apresenta Telea e outro método baseado na continuação de estruturas.</p>
+</section>
+<section class="prompt">
+<h2>Outra saída: procurar pedaços parecidos</h2>
+<p class="answer-text">Em uma parede de tijolos, copiar apenas uma cor não preserva as juntas. Uma alternativa é buscar <strong>pequenos blocos de imagem</strong>, ou <em>patches</em>, que combinem com a vizinhança da área vazia, e usá-los no preenchimento.</p><p class="answer-text">O trabalho de <a class="reference-link" href="https://www.microsoft.com/en-us/research/publication/region-filling-and-object-removal-by-exemplar-based-inpainting/">Criminisi, Pérez e Toyama, de 2004</a>, combina propagação de estruturas e síntese de textura por exemplos. A ordem de preenchimento faz diferença: continuar uma linha importante antes de completar a textura ao redor ajuda a preservar a organização da cena.</p><p class="answer-text">Pense em um mosaico: encontrar uma peça da cor certa é só parte do problema. Suas linhas também precisam se encaixar nas peças vizinhas. Se a textura se repete, existem boas pistas na própria imagem; se o trecho ausente é único, copiar uma região próxima pode criar uma repetição estranha.</p>
+</section>
+<section class="prompt">
+<h2>E quando entra uma rede neural?</h2>
+<p class="answer-text">Modelos de aprendizado profundo usam padrões aprendidos durante o treinamento para estimar o conteúdo ausente. Assim, podem considerar uma organização mais ampla da cena, em vez de depender apenas dos pixels imediatamente vizinhos.</p><p class="answer-text">Um exemplo é o <a class="reference-link" href="https://openaccess.thecvf.com/content/WACV2022/html/Suvorov_Resolution-Robust_Large_Mask_Inpainting_With_Fourier_Convolutions_WACV_2022_paper.html">LaMa, apresentado na WACV 2022</a>. O trabalho usa convoluções de Fourier para ampliar o campo de visão da rede, junto com uma função de perda perceptual de amplo alcance e máscaras grandes no treinamento. É uma conexão interessante com o post anterior: Fourier também pode fazer parte de uma arquitetura de aprendizado para preenchimento de imagens.</p><p class="answer-text">Isso não significa que basta aplicar a Transformada de Fourier para apagar um objeto. No LaMa, ela integra um modelo treinado. Também não significa que todo recurso de remoção de objetos use essa arquitetura: existem diferentes famílias de métodos.</p>
+</section>
+<section class="prompt">
+<h2>Um resultado convincente não é uma descoberta</h2>
+<p class="answer-text">Volto à parede do exemplo: atrás da lixeira poderia haver uma rachadura, uma tomada ou apenas mais parede. A foto registra a superfície da lixeira naquela região; ela não registra o que ficou oculto. Mais de um fundo seria compatível com os pixels que conseguimos ver.</p><p class="answer-text">Por isso, um preenchimento visualmente plausível não prova como era a cena. É uma estimativa. Essa distinção retoma algo que apareceu no post de interpolação: criar novos valores de pixels não equivale a realizar uma nova observação do mundo.</p><div class="concept-grid"><div class="concept-card"><strong>O que observar no resultado</strong>As linhas continuam? A textura muda de escala? A iluminação combina com o entorno?</div><div class="concept-card"><strong>Onde procurar falhas</strong>Contornos duplicados, padrões repetidos e manchas podem revelar um preenchimento que não se integra à cena.</div></div>
+</section>
+<section class="prompt">
+<h2>Por que escolhi esse tema?</h2>
+<p class="answer-text">Nos posts anteriores, explorei como imagens são representadas, ampliadas e filtradas. O inpainting leva essa sequência para uma pergunta diferente: como preencher uma região que não temos? Achei um bom tema de pesquisa complementar porque conecta operações sobre pixels a uma ferramenta de edição fácil de reconhecer.</p><p class="answer-text">O que mais me chamou a atenção foi perceber que “remover” um objeto também exige construir alguma coisa no lugar. A parte difícil não é deixar de mostrar a lixeira; é produzir uma parede que faça sentido sem ela.</p><p class="final-note">Apagar um objeto da imagem é escolher quais pixels substituir. Preencher o espaço é estimar uma continuação possível da cena.</p>
+</section>
+<section class="prompt">
+<h2>Referências</h2>
+<p class="answer-text">OpenCV. <a class="reference-link" href="https://docs.opencv.org/4.x/df/d3d/tutorial_py_inpainting.html">Image Inpainting</a>. Documentação sobre máscaras e os métodos de Telea e Navier–Stokes.</p><p class="answer-text">CRIMINISI, A.; PÉREZ, P.; TOYAMA, K. <a class="reference-link" href="https://www.microsoft.com/en-us/research/publication/region-filling-and-object-removal-by-exemplar-based-inpainting/">Region Filling and Object Removal by Exemplar-Based Image Inpainting</a>. IEEE Transactions on Image Processing, 2004.</p><p class="answer-text">SUVOROV, R. et al. <a class="reference-link" href="https://openaccess.thecvf.com/content/WACV2022/html/Suvorov_Resolution-Robust_Large_Mask_Inpainting_With_Fourier_Convolutions_WACV_2022_paper.html">Resolution-Robust Large Mask Inpainting with Fourier Convolutions</a>. WACV, 2022.</p><p class="answer-text">Pesquisa complementar aos temas registrados no blog. Referências consultadas em 27 de outubro de 2026. O exemplo interativo foi criado para este post.</p>
+</section>
+</div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="page-shell">
+            <span>Blog acadêmico de Computação Visual</span>
+        </div>
+    </footer>
+</body>
+</html>

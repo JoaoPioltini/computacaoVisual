@@ -555,6 +555,20 @@
         .post-6-body svg { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
         .post-6-body figcaption { margin-top: 8px; color: var(--muted); }
         .post-6-body .formula-card code { overflow-wrap: anywhere; font-size: 1rem; }
+
+        .post-7-body { min-width: 0; }
+        .post-7-body .reference-link { text-decoration: underline; overflow-wrap: anywhere; }
+        .post-7-body .concept-card { min-width: 0; }
+        .inpaint-demo { margin: 20px 0 0; }
+        .inpaint-demo input { accent-color: var(--accent); width: 20px; height: 20px; vertical-align: middle; }
+        .inpaint-demo label { font-weight: 700; cursor: pointer; }
+        .demo-scene { position: relative; height: 180px; margin-top: 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: repeating-linear-gradient(0deg, transparent 0 43px, #bcb5aa 43px 46px), repeating-linear-gradient(90deg, #e4ddd1 0 87px, #bcb5aa 87px 90px); }
+        .demo-object { position: absolute; width: 66px; height: 108px; left: calc(50% - 33px); top: 36px; border-radius: 8px; background: #1b7f79; border: 3px solid #135f5b; }
+        .demo-mask { display: none; position: absolute; inset: 25px calc(50% - 44px); background: rgba(242,193,78,.7); border: 3px dashed #5f4800; }
+        .demo-mask::after { content: 'Máscara'; position: absolute; top: 46px; left: 5px; color: #1f2933; font-weight: bold; font-size: 14px; }
+        .inpaint-demo input:checked ~ .demo-scene .demo-object { display: none; }
+        .inpaint-demo input:not(:checked) ~ .demo-scene .demo-mask { display: block; }
+        .demo-caption { color: var(--muted); font-size: .95rem; }
     </style>
 </head>
 <body>
@@ -572,6 +586,7 @@
                 <a href="#post-4">Post 4</a>
                 <a href="#post-5">Post 5</a>
                 <a href="#post-6">Post 6</a>
+                <a href="#post-7">Post 7</a>
             </nav>
         </div>
     </header>
@@ -635,6 +650,11 @@
                 <span class="shortcut-number">06</span>
                 <h2>O que uma imagem tem a ver com frequência?</h2>
                 <p>Fourier, filtros e o cuidado com aliasing ao reduzir uma imagem.</p>
+            </a>
+            <a class="shortcut-card" href="#post-7">
+                <span class="shortcut-number">07</span>
+                <h2>Como apagar um objeto da foto?</h2>
+                <p>Inpainting: como estimar o fundo que fica no lugar de um objeto removido.</p>
             </a>
         </section>
 
@@ -1153,6 +1173,53 @@ Linha de baixo: 100 ───── 150 ───── 200
 </section>
 </div>
                     <p class="answer-text">Link direto para este conteúdo: <a class="reference-link" href="post-6/">abrir somente o Post 6</a>.</p>
+                </div>
+            </article>
+        </section>
+        <section class="content-band">
+            <article class="page-shell post" id="post-7">
+                <aside class="post-meta" aria-label="Informações do post 7">
+                    <span>Post 7</span>
+                    <strong>Inpainting e remoção de objetos</strong>
+                </aside>
+                <div class="post-body post-7-body">
+<h2>Como um editor apaga um objeto sem deixar um buraco?</h2>
+<p class="post-intro">Você seleciona um objeto em uma foto, pede para removê-lo e o fundo parece continuar no lugar. Fui pesquisar como esse preenchimento funciona e encontrei o inpainting: um problema de computação visual que vai de combinações de pixels vizinhos a redes neurais.</p>
+<div class="prompt-list">
+<section class="prompt">
+<h2>Apagar é só o começo</h2>
+<p class="answer-text">Imagine uma foto de uma parede com uma lixeira na frente. Selecionar a lixeira e apagar seus pixels deixa um buraco: ainda precisamos decidir o que colocar ali. Pintar tudo de uma cor pode funcionar em um fundo uniforme, mas fica evidente quando existem juntas, sombras ou textura.</p><p class="answer-text">Esse preenchimento de regiões ausentes ou indesejadas é chamado de <strong>inpainting</strong>. Ele pode servir tanto para remover um objeto quanto para reparar riscos em fotografias. O objetivo é produzir uma continuação visualmente coerente com o entorno, como explica o <a class="reference-link" href="https://docs.opencv.org/4.x/df/d3d/tutorial_py_inpainting.html">tutorial de inpainting do OpenCV</a>.</p>
+</section>
+<section class="prompt">
+<h2>Como o programa sabe onde mexer?</h2>
+<p class="answer-text">Além da imagem, o algoritmo recebe uma <strong>máscara</strong>: uma indicação das posições que precisam ser preenchidas. No OpenCV, ela tem a mesma largura e altura da entrada; valores diferentes de zero marcam a área a reconstruir. A máscara informa <em>onde</em> editar, sem dizer exatamente <em>o que</em> deve aparecer.</p><p class="answer-text">No exemplo abaixo, a região amarela marca o objeto. Ao alternar a opção, vemos uma continuação idealizada das linhas do fundo.</p><div class="inpaint-demo"><input type="checkbox" id="show-fill"><label for="show-fill"> Mostrar preenchimento ilustrativo</label><div class="demo-scene" role="img" aria-label="Parede quadriculada com objeto verde e máscara amarela; ao marcar a opção, o fundo aparece contínuo"><span class="demo-object"></span><span class="demo-mask"></span></div><p class="demo-caption">Esquema didático em CSS: a interação oculta o objeto para revelar um fundo previamente desenhado. Não executa um algoritmo de inpainting.</p></div><p class="answer-text">Em uma fotografia real, esse fundo não está guardado em uma camada secreta. O programa precisa estimá-lo. Se a máscara deixar um pedaço do objeto de fora, esse pedaço pode continuar visível; se incluir uma região importante do cenário, também pediremos que ela seja refeita.</p>
+</section>
+<section class="prompt">
+<h2>Uma saída: continuar a informação dos vizinhos</h2>
+<p class="answer-text">Uma abordagem clássica parte da borda da região e avança para dentro. O método de Telea, disponível no OpenCV, estima valores usando uma combinação ponderada de pixels conhecidos próximos. A ordem do preenchimento e os pesos ajudam a levar informação do entorno para o interior.</p><p class="answer-text">É uma ideia intuitiva para um risco estreito atravessando uma superfície suave: existe bastante contexto perto de cada posição danificada. Em um buraco grande, prolongar apenas informações locais pode ter dificuldade para manter detalhes. O tutorial do OpenCV apresenta Telea e outro método baseado na continuação de estruturas.</p>
+</section>
+<section class="prompt">
+<h2>Outra saída: procurar pedaços parecidos</h2>
+<p class="answer-text">Em uma parede de tijolos, copiar apenas uma cor não preserva as juntas. Uma alternativa é buscar <strong>pequenos blocos de imagem</strong>, ou <em>patches</em>, que combinem com a vizinhança da área vazia, e usá-los no preenchimento.</p><p class="answer-text">O trabalho de <a class="reference-link" href="https://www.microsoft.com/en-us/research/publication/region-filling-and-object-removal-by-exemplar-based-inpainting/">Criminisi, Pérez e Toyama, de 2004</a>, combina propagação de estruturas e síntese de textura por exemplos. A ordem de preenchimento faz diferença: continuar uma linha importante antes de completar a textura ao redor ajuda a preservar a organização da cena.</p><p class="answer-text">Pense em um mosaico: encontrar uma peça da cor certa é só parte do problema. Suas linhas também precisam se encaixar nas peças vizinhas. Se a textura se repete, existem boas pistas na própria imagem; se o trecho ausente é único, copiar uma região próxima pode criar uma repetição estranha.</p>
+</section>
+<section class="prompt">
+<h2>E quando entra uma rede neural?</h2>
+<p class="answer-text">Modelos de aprendizado profundo usam padrões aprendidos durante o treinamento para estimar o conteúdo ausente. Assim, podem considerar uma organização mais ampla da cena, em vez de depender apenas dos pixels imediatamente vizinhos.</p><p class="answer-text">Um exemplo é o <a class="reference-link" href="https://openaccess.thecvf.com/content/WACV2022/html/Suvorov_Resolution-Robust_Large_Mask_Inpainting_With_Fourier_Convolutions_WACV_2022_paper.html">LaMa, apresentado na WACV 2022</a>. O trabalho usa convoluções de Fourier para ampliar o campo de visão da rede, junto com uma função de perda perceptual de amplo alcance e máscaras grandes no treinamento. É uma conexão interessante com o post anterior: Fourier também pode fazer parte de uma arquitetura de aprendizado para preenchimento de imagens.</p><p class="answer-text">Isso não significa que basta aplicar a Transformada de Fourier para apagar um objeto. No LaMa, ela integra um modelo treinado. Também não significa que todo recurso de remoção de objetos use essa arquitetura: existem diferentes famílias de métodos.</p>
+</section>
+<section class="prompt">
+<h2>Um resultado convincente não é uma descoberta</h2>
+<p class="answer-text">Volto à parede do exemplo: atrás da lixeira poderia haver uma rachadura, uma tomada ou apenas mais parede. A foto registra a superfície da lixeira naquela região; ela não registra o que ficou oculto. Mais de um fundo seria compatível com os pixels que conseguimos ver.</p><p class="answer-text">Por isso, um preenchimento visualmente plausível não prova como era a cena. É uma estimativa. Essa distinção retoma algo que apareceu no post de interpolação: criar novos valores de pixels não equivale a realizar uma nova observação do mundo.</p><div class="concept-grid"><div class="concept-card"><strong>O que observar no resultado</strong>As linhas continuam? A textura muda de escala? A iluminação combina com o entorno?</div><div class="concept-card"><strong>Onde procurar falhas</strong>Contornos duplicados, padrões repetidos e manchas podem revelar um preenchimento que não se integra à cena.</div></div>
+</section>
+<section class="prompt">
+<h2>Por que escolhi esse tema?</h2>
+<p class="answer-text">Nos posts anteriores, explorei como imagens são representadas, ampliadas e filtradas. O inpainting leva essa sequência para uma pergunta diferente: como preencher uma região que não temos? Achei um bom tema de pesquisa complementar porque conecta operações sobre pixels a uma ferramenta de edição fácil de reconhecer.</p><p class="answer-text">O que mais me chamou a atenção foi perceber que “remover” um objeto também exige construir alguma coisa no lugar. A parte difícil não é deixar de mostrar a lixeira; é produzir uma parede que faça sentido sem ela.</p><p class="final-note">Apagar um objeto da imagem é escolher quais pixels substituir. Preencher o espaço é estimar uma continuação possível da cena.</p>
+</section>
+<section class="prompt">
+<h2>Referências</h2>
+<p class="answer-text">OpenCV. <a class="reference-link" href="https://docs.opencv.org/4.x/df/d3d/tutorial_py_inpainting.html">Image Inpainting</a>. Documentação sobre máscaras e os métodos de Telea e Navier–Stokes.</p><p class="answer-text">CRIMINISI, A.; PÉREZ, P.; TOYAMA, K. <a class="reference-link" href="https://www.microsoft.com/en-us/research/publication/region-filling-and-object-removal-by-exemplar-based-inpainting/">Region Filling and Object Removal by Exemplar-Based Image Inpainting</a>. IEEE Transactions on Image Processing, 2004.</p><p class="answer-text">SUVOROV, R. et al. <a class="reference-link" href="https://openaccess.thecvf.com/content/WACV2022/html/Suvorov_Resolution-Robust_Large_Mask_Inpainting_With_Fourier_Convolutions_WACV_2022_paper.html">Resolution-Robust Large Mask Inpainting with Fourier Convolutions</a>. WACV, 2022.</p><p class="answer-text">Pesquisa complementar aos temas registrados no blog. Referências consultadas em 27 de outubro de 2026. O exemplo interativo foi criado para este post.</p>
+</section>
+</div>
+                    <p class="answer-text">Link direto para este conteúdo: <a class="reference-link" href="post-7/">abrir somente o Post 7</a>.</p>
                 </div>
             </article>
         </section>
